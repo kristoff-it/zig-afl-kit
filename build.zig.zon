@@ -1,0 +1,11 @@
+.{
+    .name = "zig-afl-kit",
+    .version = "0.1.0",
+    .dependencies = .{},
+    .paths = .{
+        "LICENSE",
+        "build.zig",
+        "build.zig.zon",
+        "fuzz/",
+    },
+}
