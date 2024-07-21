@@ -10,6 +10,8 @@ Make sure to have successfully built "llvm mode" (aka `afl-clang-fast`).
 
 Once https://github.com/allyourcodebase/AFLplusplus is able to build `afl-clang-fast` and `afl-clang-lto`, then you won't need to do this yourself anymore (but you will still need a build of LLVM, at least until that gets packaged for Zig aswell :^)).
 
+This package is AFL++ specific so if you're just looking how to fuzz your Zig executable, make sure to follow ziglang/zig#20702.
+
 # Usage
 
 ## Add as a dependency
