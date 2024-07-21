@@ -63,7 +63,7 @@ See `example.zig` for an example of how to structure your test code.
 ### **------> IMPORTANT <------**
 For better fuzzing performance you will want to modify `std.mem.backend_can_use_eql_bytes` to return false, otherwise AFL++ will not be able to observe char-by-char string comparisons and its fuzzing capabilities will be greatly reduced.
 
-*If you don't do this, you might aswell go back to writing unit tests like a bozo.*
+*If you don't do this, you might aswell go back to writing unit tests like a bozo >:)*
 
 This means modifying your copy of the Zig stdlib. If you have ZLS you can simply write `std.mem` anywhere in your code and goto definiton, otherwise you can invoke `zig env` and modify `$std_dir/mem.zig`.
 
