@@ -38,9 +38,6 @@ const afl_obj = b.addObject(.{
 afl_obj.root_module.stack_check = false; // not linking with compiler-rt
 afl_obj.root_module.link_libc = true; // afl runtime depends on libc
 
-//Add your code as a submodule:
-//afl_obj.root_module.addImport("mylib", mylib);
-
 // Generate an instrumented executable:
 const afl_fuzz = afl.addInstrumentedExe(b, afl_obj);
 
