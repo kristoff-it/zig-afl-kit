@@ -23,9 +23,7 @@ pub fn addInstrumentedExe(b: *std.Build, obj: *std.Build.Step.Compile) std.Build
         "-o",
     });
 
-    const fuzz_exe = run_afl_clang_fast.addOutputFileArg(b.fmt("{s}-afl", .{
-        obj.name,
-    }));
+    const fuzz_exe = run_afl_clang_fast.addOutputFileArg(obj.name);
     run_afl_clang_fast.addFileArg(afl.path("afl.c"));
     run_afl_clang_fast.addFileArg(obj.getEmittedLlvmBc());
     return fuzz_exe;
