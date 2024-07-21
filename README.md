@@ -13,7 +13,7 @@ Once https://github.com/allyourcodebase/AFLplusplus is able to build `afl-clang-
 # Usage
 
 ## Add as a dependency
-`zig fetch --save https://github.com/kristoff-it/zig-afl-kit`
+`zig fetch --save git+https://github.com/kristoff-it/zig-afl-kit`
 
 ## Use it in your build.zig
 

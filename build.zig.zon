@@ -6,6 +6,6 @@
         "LICENSE",
         "build.zig",
         "build.zig.zon",
-        "fuzz/",
+        "afl.c",
     },
 }
