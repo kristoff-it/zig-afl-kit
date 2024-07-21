@@ -23,9 +23,19 @@ var arena_impl: std.heap.ArenaAllocator = .{
     .state = .{},
 };
 
-export fn zig_fuzz_test(buf: [*]u8, len: isize) void {
+export fn zig_fuzz_init() void {
     const gpa = gpa_impl.allocator();
     arena_impl.child_allocator = gpa;
+}
+
+export fn zig_fuzz_test(buf: [*]u8, len: isize) void {
+    // If you want to test for leaks, you might want
+    // to use gpa directly and deinit - init every loop.
+    // Deiniting gpa will allow you to assert for the
+    // absence of leaks.
+    //
+    // If you don't want to test for leaks, using
+    // an arena and resetting it every loop is faster.
     const arena = arena_impl.allocator();
     _ = arena_impl.reset(.retain_capacity);
 
