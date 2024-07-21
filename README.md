@@ -75,6 +75,35 @@ This means modifying your copy of the Zig stdlib. If you have ZLS you can simply
 
 `zig build fuzz -Dafl-path="../AFLPlusplus"`
 
+## I'm a C or C++ programmer, can I use this?
+Of course you can, just setup your object file step to be compiled from C/C++ files!
+
+Something along these lines:
+
+```zig
+const afl_obj = b.addObject(.{
+    .name = "my_fuzz_obj",
+    //.root_source_file = b.path("src/fuzz.zig"),
+    .target = target,
+    .optimize = .Debug,
+});
+
+afl_obj.addCSourceFiles(.{
+    .files = &.{
+        "foo.c",
+        "bar.c",
+    },
+    // In case you need flags:
+    //.flags = &.{"-Wextra", "-DFOO"},
+});
+
+// Required options:
+afl_obj.root_module.stack_check = false; // not linking with compiler-rt
+afl_obj.root_module.link_libc = true; // afl runtime depends on libc
+
+```
+The Zig build system can also deal with all other kinds of C build requirements, see the official Zig standard library docs for more info.
+
 ## Fuzz your application
 Create one or more example cases that execute successfully:
 
