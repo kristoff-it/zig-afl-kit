@@ -1,5 +1,5 @@
 # zig-afl-kit
-Convenience functions for easy integration with AFL++
+Convenience functions for easy integration with AFL++ for both Zig and C/C++ programmers!
 
 # Dependencies
 You need to have a build of AFL++ on your system, see https://aflplus.plus/ for more info.
