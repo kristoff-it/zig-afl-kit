@@ -1,7 +1,12 @@
 .{
     .name = "zig-afl-kit",
     .version = "0.1.0",
-    .dependencies = .{},
+    .dependencies = .{
+        .AFLplusplus = .{
+            .url = "git+https://github.com/allyourcodebase/AFLplusplus#30f7aa591ceea4fbc2616903581d697b8ab3bbdc",
+            .hash = "1220b728b9618a22a9bd416a324d6b05578dc6d15316acb7e7b0bf78b1ad3ba8eb9e",
+        },
+    },
     .paths = .{
         "LICENSE",
         "build.zig",

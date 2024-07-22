@@ -2,13 +2,7 @@
 Convenience functions for easy integration with AFL++ for both Zig and C/C++ programmers!
 
 # Dependencies
-You need to have a build of AFL++ on your system, see https://aflplus.plus/ for more info.
-
-Unless you know you need something different, you will want to build the `source-only` target (so `make source-only`), which will build only the tools for fuzzing programs that you have sources of.
-
-Make sure to have successfully built "llvm mode" (aka `afl-clang-fast`).
-
-Once https://github.com/allyourcodebase/AFLplusplus is able to build `afl-clang-fast` and `afl-clang-lto`, then you won't need to do this yourself anymore (but you will still need a build of LLVM, at least until that gets packaged for Zig aswell :^)).
+Thanks to the amazing work done in [allyourcodebase/AFLplusplus](https://github.com/allyourcodebase/AFLplusplus), you don't even need to build the toolchain manually anymore. *You will need LLVM though, we haven't packaged that yet sorry!*
 
 This package is AFL++ specific so if you're just looking how to fuzz your Zig executable, make sure to follow ziglang/zig#20702.
 
@@ -49,8 +43,8 @@ fuzz.dependOn(&b.addInstallBinFile(afl_fuzz, "myfuzz-afl").step);
 
 ### Your test code
 To create an instrumented executable, your object file must export two C symbols: 
-- `zig_fuzz_init` invoked once to initialize resources (eg allocators)
-- `zig_fuzz_test` invoked in a loop, containing the main test code, expected to not leave dirty state / leak memory across invocations.
+- `fn zig_fuzz_init()` invoked once to initialize resources (eg allocators)
+- `fn zig_fuzz_test(buf: [*]u8, len: isize)` invoked in a loop, containing the main test code, expected to not leave dirty state / leak memory across invocations.
 
 This library integrates with AFL++ using:
 - persistent mode (runs multiple tests on a single process, increases performance drammatically)
@@ -104,16 +98,41 @@ afl_obj.root_module.link_libc = true; // afl runtime depends on libc
 The Zig build system can also deal with all other kinds of C build requirements, see the official Zig standard library docs for more info.
 
 ## Fuzz your application
+By default your fuzz step (depending on the instrumented executable to me more precise) will also install the entire AFLplusplus toolchain.
+
+```
+zig-out
+├─ bin
+│   └── myfuzz-afl 
+└── AFLplusplus
+    ├── bin
+    │   ├── afl-analyze
+    │   ├── afl-as
+    │   ├── afl-cc
+    │   ├── afl-compiler-rt-64
+    │   ├── afl-compiler-rt.o
+    │   ├── afl-fuzz
+    │   ├── afl-gotcpu
+    │   ├── afl-llvm-rt-lto-64
+    │   ├── afl-llvm-rt-lto.o
+    │   ├── afl-showmap
+    │   └── afl-tmin
+    └── lib
+        └── <a lot of stuff>
+```
+
+If you don't want to build and install the full toolchain, set the `tools` option to `false` (`-Dtools=false`), this way `afl-cc` will be used directly from inside Zig's cache.
+
 Create one or more example cases that execute successfully:
 
 ```bash
-cd AFLPlusPlus
+cd zig-out/AFLPlusPlus
 mkdir cases
 echo "good case" > cases/init.txt   
 ```
 
 Start fuzzing:
-`./afl-fuzz -i cases -o output_dir /path/to/myfuzz-afl`
+`./afl-fuzz -i cases -o output_dir ../../bin/myfuzz-afl`
 
 Crashing inputs will be placed in `output_dir/default/crashes`.
 
