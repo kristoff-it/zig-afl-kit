@@ -43,8 +43,8 @@ fuzz.dependOn(&b.addInstallBinFile(afl_fuzz, "myfuzz-afl").step);
 
 ### Your test code
 To create an instrumented executable, your object file must export two C symbols: 
-- `fn zig_fuzz_init()` invoked once to initialize resources (eg allocators)
-- `fn zig_fuzz_test(buf: [*]u8, len: isize)` invoked in a loop, containing the main test code, expected to not leave dirty state / leak memory across invocations.
+- `export fn zig_fuzz_init() void {}` invoked once to initialize resources (eg allocators)
+- `export fn zig_fuzz_test(buf: [*]u8, len: isize) void {}` invoked in a loop, containing the main test code, expected to not leave dirty state / leak memory across invocations.
 
 This library integrates with AFL++ using:
 - persistent mode (runs multiple tests on a single process, increases performance drammatically)
