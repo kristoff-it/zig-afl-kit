@@ -33,21 +33,21 @@ pub fn addInstrumentedExe(b: *std.Build, obj: *std.Build.Step.Compile) std.Build
         });
         run.step.dependOn(&afl.builder.top_level_steps.get("llvm_exes").?.step);
 
-        const install_tools = b.addInstallDirectory(.{
-            .source_dir = std.Build.LazyPath{
-                .cwd_relative = afl.builder.install_path,
-            },
-            .install_dir = .prefix,
-            .install_subdir = "AFLplusplus",
-        });
-
-        install_tools.step.dependOn(afl.builder.getInstallStep());
-
         if (b.option(
             bool,
             "tools",
             "Install AFL++ tools (default true)",
         ) orelse true) {
+            const install_tools = b.addInstallDirectory(.{
+                .source_dir = std.Build.LazyPath{
+                    .cwd_relative = afl.builder.install_path,
+                },
+                .install_dir = .prefix,
+                .install_subdir = "AFLplusplus",
+            });
+
+            install_tools.step.dependOn(afl.builder.getInstallStep());
+
             run.step.dependOn(&install_tools.step);
         }
 

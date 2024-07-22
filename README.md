@@ -53,15 +53,17 @@ This library integrates with AFL++ using:
 See `afl.c` for more info.
 See `example.zig` for an example of how to structure your test code.
 
-### **------> IMPORTANT <------**
-For better fuzzing performance you will want to modify `std.mem.backend_can_use_eql_bytes` to return false, otherwise AFL++ will not be able to observe char-by-char string comparisons and its fuzzing capabilities will be greatly reduced.
 
-*If you don't do this, you might aswell go back to writing unit tests like a bozo >:3*
+
+### **------> IMPORTANT <------**
+
+**UPDATE: Once ziglang/zig#20725 is merged, you will be able to avoid the next step by doing `afl_obj.root_module.fuzz = true;`.**
+
+For better fuzzing performance you will want to modify `std.mem.backend_can_use_eql_bytes` to return false, otherwise AFL++ will not be able to observe char-by-char string comparisons and its fuzzing capabilities will be greatly reduced.
 
 This means modifying your copy of the Zig stdlib. If you have ZLS you can simply write `std.mem` anywhere in your code and goto definiton, otherwise you can invoke `zig env` and modify `$std_dir/mem.zig`.
 
 **Also don't forget to revert this change after you're done!**
-(ideally this will be streamlined in the near future)
 
 ## CLI arguments
 `addInstrumentedExe` will define a `afl-path` option to allow you to point at a directory where you built AFL++, like so:
