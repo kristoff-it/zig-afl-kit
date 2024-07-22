@@ -118,7 +118,7 @@ zig-out
     │   ├── afl-showmap
     │   └── afl-tmin
     └── lib
-        └── <a lot of stuff>
+        └── <various afl++ dependencies>
 ```
 
 If you don't want to build and install the full toolchain, set the `tools` option to `false` (`-Dtools=false`), this way `afl-cc` will be used directly from inside Zig's cache.
