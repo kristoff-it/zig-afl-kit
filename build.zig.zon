@@ -3,7 +3,8 @@
     .version = "0.1.0",
     .dependencies = .{
         .AFLplusplus = .{
-            .path = "../AFLplusplus",
+            .url = "git+https://github.com/allyourcodebase/AFLplusplus#032984eabf5a35af386a3d0e542df7686da339c1",
+            .hash = "1220010a1edd8631b2644476517024992f8e57f453bdb68668720bb590d168faf7c8",
         },
     },
     .paths = .{
