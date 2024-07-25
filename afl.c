@@ -21,9 +21,9 @@ void zig_fuzz_test(unsigned char *, ssize_t);
 
 // bug in compilation causes init func to never get called
 // TODO: remove this once bug is fixed
-uint32_t __start___sancov_guards;
-uint32_t __stop___sancov_guards;
-void __sanitizer_cov_trace_pc_guard_init(uint32_t*, uint32_t*);
+// uint32_t __start___sancov_guards;
+// uint32_t __stop___sancov_guards;
+// void __sanitizer_cov_trace_pc_guard_init(uint32_t*, uint32_t*);
 
 
 
@@ -42,7 +42,7 @@ unsigned char __afl_fuzz_alt[1048576];
 unsigned char *__afl_fuzz_alt_ptr = __afl_fuzz_alt;
 
 int main(int argc, char **argv) {
-    __sanitizer_cov_trace_pc_guard_init(&__start___sancov_guards, &__stop___sancov_guards);
+    // __sanitizer_cov_trace_pc_guard_init(&__start___sancov_guards, &__stop___sancov_guards);
   
   // __AFL_INIT();
       static volatile const char *_A __attribute__((used,unused)); 

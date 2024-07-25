@@ -13,7 +13,7 @@ pub fn addInstrumentedExe(
     // std.debug.assert(obj.root_module.stack_check == false); // not linking with compiler-rt
     // std.debug.assert(obj.root_module.link_libc == true); // afl runtime depends on libc
 
-    if (false) {
+    if (true) {
         const exe = b.addExecutable(.{
             .name = obj.name,
             .target = target,
@@ -36,8 +36,9 @@ pub fn addInstrumentedExe(
             .flags = &.{},
         });
 
-        return exe;
+        return exe.getEmittedBin();
     }
+
     const afl = afl_kit.builder.dependency("AFLplusplus", .{
         .target = target,
         .optimize = optimize,
