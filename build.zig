@@ -45,36 +45,44 @@ pub fn addInstrumentedExe(
         "Path that contains llvm-config",
     ) orelse &.{};
 
-    const afl = afl_kit.builder.dependency("AFLplusplus", .{
-        .target = target,
-        .optimize = optimize,
-        .@"llvm-config-path" = llvm_config,
-    });
+    const run_afl_cc = run_afl_cc: {
+        if (b.option([]const u8, "afl-path", "path to prebuilt AFL++")) |afl_path| {
+            break :run_afl_cc b.addSystemCommand(&.{
+                b.pathJoin(&.{ afl_path, "afl-cc" }),
+            });
+        } else {
+            const afl = afl_kit.builder.dependency("AFLplusplus", .{
+                .target = target,
+                .optimize = optimize,
+                .@"llvm-config-path" = llvm_config,
+            });
 
-    const install_tools = b.addInstallDirectory(.{
-        .source_dir = std.Build.LazyPath{
-            .cwd_relative = afl.builder.install_path,
-        },
-        .install_dir = .prefix,
-        .install_subdir = "AFLplusplus",
-    });
+            const install_tools = b.addInstallDirectory(.{
+                .source_dir = .{
+                    .cwd_relative = afl.builder.install_path,
+                },
+                .install_dir = .prefix,
+                .install_subdir = "AFLplusplus",
+            });
 
-    install_tools.step.dependOn(afl.builder.getInstallStep());
+            install_tools.step.dependOn(afl.builder.getInstallStep());
+
+            const run_afl_cc = b.addSystemCommand(&.{
+                b.pathJoin(&.{ afl.builder.exe_dir, "afl-cc" }),
+            });
+            run_afl_cc.step.dependOn(&afl.builder.top_level_steps.get("llvm_exes").?.step);
+            run_afl_cc.step.dependOn(&install_tools.step);
+            break :run_afl_cc run_afl_cc;
+        }
+    };
+
     _ = obj.getEmittedBin(); // hack around build system bug
 
-    {
-        const run_afl_cc = b.addSystemCommand(&.{
-            b.pathJoin(&.{ afl.builder.exe_dir, "afl-cc" }),
-            "-O3",
-            "-o",
-        });
-        run_afl_cc.step.dependOn(&afl.builder.top_level_steps.get("llvm_exes").?.step);
-        run_afl_cc.step.dependOn(&install_tools.step);
-        const fuzz_exe = run_afl_cc.addOutputFileArg(obj.name);
-        run_afl_cc.addFileArg(afl_kit.path("afl.c"));
-        run_afl_cc.addFileArg(obj.getEmittedLlvmBc());
-        return fuzz_exe;
-    }
+    run_afl_cc.addArgs(&.{ "-O3", "-o" });
+    const fuzz_exe = run_afl_cc.addOutputFileArg(obj.name);
+    run_afl_cc.addFileArg(afl_kit.path("afl.c"));
+    run_afl_cc.addFileArg(obj.getEmittedLlvmBc());
+    return fuzz_exe;
 }
 
 pub fn build(b: *std.Build) !void {
