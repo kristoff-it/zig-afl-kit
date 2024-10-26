@@ -35,7 +35,7 @@ afl_obj.root_module.stack_check = false; // not linking with compiler-rt
 afl_obj.root_module.link_libc = true; // afl runtime depends on libc
 
 // Generate an instrumented executable:
-const afl_fuzz = afl.addInstrumentedExe(b, afl_obj);
+const afl_fuzz = afl.addInstrumentedExe(b, target, optimize, afl_obj);
 
 // Install it
 fuzz.dependOn(&b.addInstallBinFile(afl_fuzz, "myfuzz-afl").step);

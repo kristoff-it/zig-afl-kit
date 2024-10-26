@@ -38,9 +38,17 @@ pub fn addInstrumentedExe(
 
         return exe;
     }
+
+    const llvm_config: []const []const u8 = b.option(
+        []const []const u8,
+        "llvm-config-path",
+        "Path that contains llvm-config",
+    ) orelse &.{};
+
     const afl = afl_kit.builder.dependency("AFLplusplus", .{
         .target = target,
         .optimize = optimize,
+        .@"llvm-config-path" = llvm_config,
     });
 
     const install_tools = b.addInstallDirectory(.{
