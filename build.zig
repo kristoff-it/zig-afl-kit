@@ -4,6 +4,8 @@ pub fn addInstrumentedExe(
     b: *std.Build,
     target: std.Build.ResolvedTarget,
     optimize: std.builtin.OptimizeMode,
+    /// Pass null if llvm-config is in PATH
+    llvm_config_path: ?[]const []const u8,
     obj: *std.Build.Step.Compile,
 ) std.Build.LazyPath {
     const afl_kit = b.dependencyFromBuildZig(@This(), .{});
@@ -39,16 +41,10 @@ pub fn addInstrumentedExe(
         return exe;
     }
 
-    const llvm_config: []const []const u8 = b.option(
-        []const []const u8,
-        "llvm-config-path",
-        "Path that contains llvm-config",
-    ) orelse &.{};
-
     const afl = afl_kit.builder.dependency("AFLplusplus", .{
         .target = target,
         .optimize = optimize,
-        .@"llvm-config-path" = llvm_config,
+        .@"llvm-config-path" = llvm_config_path orelse &.{},
     });
 
     const install_tools = b.addInstallDirectory(.{
