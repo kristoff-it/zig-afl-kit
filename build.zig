@@ -44,7 +44,7 @@ pub fn addInstrumentedExe(
     const afl = afl_kit.builder.dependency("AFLplusplus", .{
         .target = target,
         .optimize = optimize,
-        .@"llvm-config-path" = llvm_config_path orelse &.{},
+        .@"llvm-config-path" = llvm_config_path orelse &[_][]const u8{},
     });
 
     const install_tools = b.addInstallDirectory(.{
