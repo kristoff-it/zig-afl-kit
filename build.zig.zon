@@ -5,6 +5,7 @@
         .AFLplusplus = .{
             .url = "git+https://github.com/allyourcodebase/AFLplusplus#73098eac7ec38baf978b0f22d17b283014fefe1c",
             .hash = "122004ec248ef4e2d9b9f4f71a969fd173fa1d6cbceccff1ecc3e07d8379a9d12548",
+            .lazy = true,
         },
     },
     .paths = .{
