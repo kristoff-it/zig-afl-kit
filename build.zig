@@ -62,7 +62,7 @@ pub fn addInstrumentedExe(
 
         install_tools.step.dependOn(afl.builder.getInstallStep());
         run_afl_cc = b.addSystemCommand(&.{
-            b.pathJoin(&.{ afl.builder.exe_dir, "afl-clang-lto" }),
+            b.pathJoin(&.{ afl.builder.exe_dir, "afl-cc" }),
             "-O3",
             "-o",
         });
@@ -70,11 +70,13 @@ pub fn addInstrumentedExe(
         run_afl_cc.step.dependOn(&install_tools.step);
     } else {
         run_afl_cc = b.addSystemCommand(&.{
-            b.findProgram(&.{"afl-clang-lto"}, &.{}) catch @panic("Could not find 'afl-clang-lto', which is required to build"),
+            b.findProgram(&.{"afl-cc"}, &.{}) catch @panic("Could not find 'afl-cc', which is required to build"),
             "-O3",
             "-o",
         });
     }
+    // Ensure afl-cc runs in lto mode. Otherwise, instrumentation will be bad.
+    run_afl_cc.setEnvironmentVariable("MODE", "LTO");
     _ = obj.getEmittedBin(); // hack around build system bug
 
     const fuzz_exe = run_afl_cc.addOutputFileArg(obj.name);
