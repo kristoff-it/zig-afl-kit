@@ -75,8 +75,9 @@ pub fn addInstrumentedExe(
             "-o",
         });
     }
-    // Ensure afl-cc runs in lto mode. Otherwise, instrumentation will be bad.
-    run_afl_cc.setEnvironmentVariable("AFL_CC_COMPILER", "LTO");
+    // Ensure afl-cc runs in llvm mode. Otherwise, instrumentation will be bad.
+    // Using llvm mode gives same coverage as lto mode (only one bc file), but avoids lld requirement.
+    run_afl_cc.setEnvironmentVariable("AFL_CC_COMPILER", "LLVM");
     _ = obj.getEmittedBin(); // hack around build system bug
 
     const fuzz_exe = run_afl_cc.addOutputFileArg(obj.name);
