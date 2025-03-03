@@ -62,7 +62,7 @@ pub fn addInstrumentedExe(
 
         install_tools.step.dependOn(afl.builder.getInstallStep());
         run_afl_cc = b.addSystemCommand(&.{
-            b.pathJoin(&.{ afl.builder.exe_dir, "afl-cc" }),
+            b.pathJoin(&.{ afl.builder.exe_dir, "afl-clang-lto" }),
             "-O3",
             "-o",
         });
@@ -70,7 +70,7 @@ pub fn addInstrumentedExe(
         run_afl_cc.step.dependOn(&install_tools.step);
     } else {
         run_afl_cc = b.addSystemCommand(&.{
-            b.findProgram(&.{"afl-cc"}, &.{}) catch @panic("Could not find 'afl-cc', which is required to build"),
+            b.findProgram(&.{"afl-clang-lto"}, &.{}) catch @panic("Could not find 'afl-cc', which is required to build"),
             "-O3",
             "-o",
         });
