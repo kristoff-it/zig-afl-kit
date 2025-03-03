@@ -2,6 +2,8 @@
     .name = .afl_kit,
     .version = "0.1.0",
     .fingerprint = 0x679b0da18a013ba,
+
+    .minimum_zig_version = "0.14.0-dev.3451+d8d2aa9af",
     .dependencies = .{
         .AFLplusplus = .{
             .url = "git+https://github.com/allyourcodebase/AFLplusplus#73098eac7ec38baf978b0f22d17b283014fefe1c",
