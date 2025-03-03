@@ -70,7 +70,7 @@ pub fn addInstrumentedExe(
         run_afl_cc.step.dependOn(&install_tools.step);
     } else {
         run_afl_cc = b.addSystemCommand(&.{
-            b.findProgram(&.{"afl-clang-lto"}, &.{}) catch @panic("Could not find 'afl-cc', which is required to build"),
+            b.findProgram(&.{"afl-clang-lto"}, &.{}) catch @panic("Could not find 'afl-clang-lto', which is required to build"),
             "-O3",
             "-o",
         });
