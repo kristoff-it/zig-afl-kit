@@ -76,7 +76,7 @@ pub fn addInstrumentedExe(
         });
     }
     // Ensure afl-cc runs in lto mode. Otherwise, instrumentation will be bad.
-    run_afl_cc.setEnvironmentVariable("MODE", "LTO");
+    run_afl_cc.setEnvironmentVariable("AFL_CC_COMPILER", "LTO");
     _ = obj.getEmittedBin(); // hack around build system bug
 
     const fuzz_exe = run_afl_cc.addOutputFileArg(obj.name);
