@@ -1,6 +1,6 @@
 .{
     .name = .afl_kit,
-    .fingerprint = 0x75e9f6827df84ede,
+    .fingerprint = 0x679b0da7277d235,
     .version = "0.1.0",
     .dependencies = .{
         .AFLplusplus = .{
