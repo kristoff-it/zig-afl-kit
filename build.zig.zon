@@ -1,5 +1,5 @@
 .{
-    .name = .zig_afl_kit,
+    .name = .afl_kit,
     .fingerprint = 0x75e9f6827df84ede,
     .version = "0.1.0",
     .dependencies = .{
