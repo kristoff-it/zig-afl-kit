@@ -10,6 +10,8 @@ pub fn addInstrumentedExe(
     /// This is a workaround for issues with zig compiled afl++ and C++11 abi on ubuntu.
     use_system_afl: bool,
     obj: *std.Build.Step.Compile,
+    /// Extra arguments to pass to the c++ compiler.
+    extra_cc_args: []const []const u8,
 ) ?std.Build.LazyPath {
     const afl_kit = b.dependencyFromBuildZig(@This(), .{});
 
@@ -64,7 +66,6 @@ pub fn addInstrumentedExe(
         run_afl_cc = b.addSystemCommand(&.{
             b.pathJoin(&.{ afl.builder.exe_dir, "afl-cc" }),
             "-O3",
-            "-o",
         });
         run_afl_cc.step.dependOn(&afl.builder.top_level_steps.get("llvm_exes").?.step);
         run_afl_cc.step.dependOn(&install_tools.step);
@@ -72,11 +73,12 @@ pub fn addInstrumentedExe(
         run_afl_cc = b.addSystemCommand(&.{
             b.findProgram(&.{"afl-cc"}, &.{}) catch @panic("Could not find 'afl-cc', which is required to build"),
             "-O3",
-            "-o",
         });
     }
     _ = obj.getEmittedBin(); // hack around build system bug
 
+    run_afl_cc.addArgs(extra_cc_args);
+    run_afl_cc.addArg("-o");
     const fuzz_exe = run_afl_cc.addOutputFileArg(obj.name);
     run_afl_cc.addFileArg(afl_kit.path("afl.c"));
     run_afl_cc.addFileArg(obj.getEmittedLlvmBc());
