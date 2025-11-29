@@ -17,17 +17,19 @@ Create an object file step with your test code (more on that later) and pass it 
 
 ```zig
 // build.zig
-const afl = @import("zig-afl-kit");
+const afl = @import("afl_kit");
 
 // Define a step for generating fuzzing tooling:
 const fuzz = b.step("fuzz", "Generate an instrumented executable for AFL++");
 
-// Define an oblect file that contains your test function:
-const afl_obj = b.addObject(.{
+// Define an object file that contains your test function:
+  const afl_obj = b.addObject(.{
     .name = "my_fuzz_obj",
-    .root_source_file = b.path("src/fuzz.zig"),
-    .target = target,
-    .optimize = .Debug,
+    .root_module = b.createModule(.{
+        .root_source_file = b.path("src/fuzz.zig"),
+        .target = target,
+        .optimize = .Debug,
+    }),
 });
 
 // Required options:
@@ -35,8 +37,7 @@ afl_obj.root_module.stack_check = false; // not linking with compiler-rt
 afl_obj.root_module.link_libc = true; // afl runtime depends on libc
 
 // Generate an instrumented executable:
-const afl_fuzz = afl.addInstrumentedExe(b, target, optimize, afl_obj);
-
+const afl_fuzz = afl.addInstrumentedExe(b, target, optimize, null, false,afl_obj, &.{});
 // Install it
 fuzz.dependOn(&b.addInstallBinFile(afl_fuzz, "myfuzz-afl").step);
 ```
@@ -71,7 +72,7 @@ This means modifying your copy of the Zig stdlib. If you have ZLS you can simply
 `zig build fuzz -Dafl-path="../AFLPlusplus"`
 
 ## I'm a C or C++ programmer, can I use this?
-Of course you can, just setup your object file step to be compiled from C/C++ files!
+Of course, you can just set up your object file step to be compiled from C/C++ files!
 
 Something along these lines:
 
@@ -100,7 +101,7 @@ afl_obj.root_module.link_libc = true; // afl runtime depends on libc
 The Zig build system can also deal with all other kinds of C build requirements, see the official Zig standard library docs for more info.
 
 ## Fuzz your application
-By default your fuzz step (depending on the instrumented executable to me more precise) will also install the entire AFLplusplus toolchain.
+By default, your fuzz step (depending on the instrumented executable to me more precise)    will also install the entire AFLplusplus toolchain.
 
 ```
 zig-out
