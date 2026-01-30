@@ -19,10 +19,11 @@ void zig_fuzz_init();
 void zig_fuzz_test(unsigned char *, ssize_t);
 
 
-// bug in compilation causes init func to never get called
-// TODO: remove this once bug is fixed
-uint32_t __start___sancov_guards;
-uint32_t __stop___sancov_guards;
+// Linker-provided symbols marking the boundaries of the __sancov_guards section.
+// These must be declared extern so the linker provides the actual section boundaries
+// from the instrumented code, rather than creating new variables that shadow them.
+extern uint32_t __start___sancov_guards;
+extern uint32_t __stop___sancov_guards;
 void __sanitizer_cov_trace_pc_guard_init(uint32_t*, uint32_t*);
 
 
