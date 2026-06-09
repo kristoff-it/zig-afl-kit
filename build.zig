@@ -15,68 +15,64 @@ pub fn addInstrumentedExe(
 ) ?std.Build.LazyPath {
     const afl_kit = b.dependencyFromBuildZig(@This(), .{});
 
+    if (!use_system_afl) @panic("feature regressed, use system afl");
+    _ = target;
+    _ = optimize;
+    _ = llvm_config_path;
+
     // TODO: validate obj
 
     // std.debug.assert(obj.root_module.stack_check == false); // not linking with compiler-rt
     // std.debug.assert(obj.root_module.link_libc == true); // afl runtime depends on libc
 
-    if (false) {
-        const exe = b.addExecutable(.{
-            .name = obj.name,
-            .target = target,
-            .optimize = optimize,
-        });
-        // exe.root_module.fuzz = false;
-        exe.root_module.link_libc = true;
-        exe.addCSourceFile(.{
-            .file = afl_kit.path("afl.c"),
-            .flags = &.{},
-        });
-        obj.root_module.fuzz = true;
-        obj.root_module.link_libc = true;
-        obj.sanitize_coverage_trace_pc_guard = true;
-        exe.addObject(obj);
+    // if (!use_system_afl) {
+    //     const afl = afl_kit.builder.lazyDependency("AFLplusplus", .{
+    //         .target = target,
+    //         .optimize = optimize,
+    //         .@"llvm-config-path" = llvm_config_path orelse &[_][]const u8{},
+    //     }) orelse return null;
 
-        // exe.addObject(afl_kit.path("afl-compiler-rt.o"));
-        exe.addCSourceFile(.{
-            .file = afl_kit.path("afl-compiler-rt.o"),
-            .flags = &.{},
-        });
+    // const install_tools = b.addInstallDirectory(.{
+    //     .source_dir = std.Build.LazyPath{
+    //         .cwd_relative = afl.builder.install_path,
+    //     },
+    //     .install_dir = .prefix,
+    //     .install_subdir = "AFLplusplus",
+    // });
 
-        return exe;
-    }
+    // var afl_cc_install: ?*std.Build.Step.InstallArtifact = null;
+    // for (afl_kit.builder.install_tls.step.dependencies.items) |dep_step| {
+    //     const inst = dep_step.cast(std.Build.Step.InstallArtifact) orelse continue;
+    //     const install_tool = b.addInstallArtifact(inst.artifact, .{
+    //         .dest_sub_path = "AFLplusplus",
+    //     });
+    //     std.debug.print("ART = [{s}]\n", .{inst.artifact.name});
+    //     if (std.mem.eql(u8, inst.artifact.name, "afl-cc")) {
+    //         afl_cc_install = install_tool;
+    //     }
+    //     install_tool.step.dependOn(afl.builder.getInstallStep());
+    // }
 
-    var run_afl_cc: *std.Build.Step.Run = undefined;
-    if (!use_system_afl) {
-        const afl = afl_kit.builder.lazyDependency("AFLplusplus", .{
-            .target = target,
-            .optimize = optimize,
-            .@"llvm-config-path" = llvm_config_path orelse &[_][]const u8{},
-        }) orelse return null;
+    // const run_afl_cc = b.addRunArtifact(afl_kit.artifact("afl-cc"));
+    // run_afl_cc.step.dependOn(&afl_cc_install.?.step);
 
-        const install_tools = b.addInstallDirectory(.{
-            .source_dir = std.Build.LazyPath{
-                .cwd_relative = afl.builder.install_path,
-            },
-            .install_dir = .prefix,
-            .install_subdir = "AFLplusplus",
-        });
+    // return aflCcArgs(run_afl_cc, afl_kit, obj, extra_cc_args);
+    // } else {
+    const run_afl_cc = b.addSystemCommand(&.{
+        b.findProgram(.{ .names = &.{"afl-cc"} }) orelse @panic("Could not find 'afl-cc', which is required to build"),
+        "-O3",
+    });
+    return aflCcArgs(run_afl_cc, afl_kit, obj, extra_cc_args);
+    // }
+}
 
-        install_tools.step.dependOn(afl.builder.getInstallStep());
-        run_afl_cc = b.addSystemCommand(&.{
-            b.pathJoin(&.{ afl.builder.exe_dir, "afl-cc" }),
-            "-O3",
-        });
-        run_afl_cc.step.dependOn(&afl.builder.top_level_steps.get("llvm_exes").?.step);
-        run_afl_cc.step.dependOn(&install_tools.step);
-    } else {
-        run_afl_cc = b.addSystemCommand(&.{
-            b.findProgram(&.{"afl-cc"}, &.{}) catch @panic("Could not find 'afl-cc', which is required to build"),
-            "-O3",
-        });
-    }
+fn aflCcArgs(
+    run_afl_cc: anytype,
+    afl_kit: *std.Build.Dependency,
+    obj: *std.Build.Step.Compile,
+    extra_cc_args: []const []const u8,
+) std.Build.LazyPath {
     _ = obj.getEmittedBin(); // hack around build system bug
-
     run_afl_cc.addArgs(extra_cc_args);
     run_afl_cc.addArg("-o");
     const fuzz_exe = run_afl_cc.addOutputFileArg(obj.name);
