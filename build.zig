@@ -58,10 +58,10 @@ pub fn addInstrumentedExe(
 
     // return aflCcArgs(run_afl_cc, afl_kit, obj, extra_cc_args);
     // } else {
-    const run_afl_cc = b.addSystemCommand(&.{
-        b.findProgram(.{ .names = &.{"afl-cc"} }) orelse @panic("Could not find 'afl-cc', which is required to build"),
-        "-O3",
-    });
+    const run_afl_cc = b.addRunFile(
+        b.findProgramLazy(.{ .names = &.{"afl-cc"} }),
+    );
+    run_afl_cc.addArg("-O3");
     return aflCcArgs(run_afl_cc, afl_kit, obj, extra_cc_args);
     // }
 }
